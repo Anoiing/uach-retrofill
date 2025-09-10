@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 // This function's role is to enable smooth transition to the brave new world of
 // User-Agent Client Hints. If you have legacy code that relies on
 // `navigator.userAgent` and which relies on entropy that will go away by
@@ -22,37 +21,37 @@
 // as a stop gap, to enable smooth transition during that period.
 
 /**
-* @param {string[]} hints
-* @return {Promise<string|undefined>} A Promise that resolves to a string if a
-*   UA could be synthesized from client hints, otherwise undefined.
-*/
+ * @param {string[]} hints
+ * @return {Promise<string|undefined>} A Promise that resolves to a string if a
+ *   UA could be synthesized from client hints, otherwise undefined.
+ */
 async function getUserAgentUsingClientHints(hints) {
   // Helper functions for platform specific strings
   const GetCrosSpecificString = (values) => {
-    let osCPUFragment = "";
-    if (values.bitness == "64") {
-      if (values.architecture == "x86") {
-        osCPUFragment = "x86_64";
-      } else if (values.architecture == "arm") {
-        osCPUFragment = "aarch64";
+    let osCPUFragment = '';
+    if (values.bitness == '64') {
+      if (values.architecture == 'x86') {
+        osCPUFragment = 'x86_64';
+      } else if (values.architecture == 'arm') {
+        osCPUFragment = 'aarch64';
       }
-    } else if (values.architecture == "arm" && values.bitness == "32") {
-      osCPUFragment = "armv7l";
+    } else if (values.architecture == 'arm' && values.bitness == '32') {
+      osCPUFragment = 'armv7l';
     }
-    if (osCPUFragment == "") {
+    if (osCPUFragment == '') {
       return `X11; CrOS ${values.platformVersion}`;
     }
     return `X11; CrOS ${osCPUFragment} ${values.platformVersion}`;
   };
 
   const GetWindowsSpecificString = (values) => {
-    let osCPUFragment = "";
-    if (values.architecture == "x86" && values.bitness == "64") {
-      osCPUFragment = "; Win64; x64";
-    } else if (values.architecture == "arm") {
-      osCPUFragment = "; ARM";
+    let osCPUFragment = '';
+    if (values.architecture == 'x86' && values.bitness == '64') {
+      osCPUFragment = '; Win64; x64';
+    } else if (values.architecture == 'arm') {
+      osCPUFragment = '; ARM';
     } else if (values.wow64 === true) {
-      osCPUFragment = "; WOW64";
+      osCPUFragment = '; WOW64';
     }
     return `Windows NT ${getWindowsPlatformVersion(
       values.platformVersion
@@ -60,20 +59,20 @@ async function getUserAgentUsingClientHints(hints) {
   };
 
   const GetMacSpecificString = (values) => {
-    let newUA = "Macintosh; Intel Mac OS X ";
+    let newUA = 'Macintosh; Intel Mac OS X ';
     let macVersion = values.platformVersion;
-    if (macVersion.indexOf(".") > -1) {
-      macVersion = macVersion.split(".").join("_");
+    if (macVersion.indexOf('.') > -1) {
+      macVersion = macVersion.split('.').join('_');
     }
     newUA += macVersion;
     return newUA;
   };
 
   const GetAndroidSpecificString = (values) => {
-    let newUA = "Linux; Android ";
+    let newUA = 'Linux; Android ';
     newUA += values.platformVersion;
     if (values.model) {
-      newUA += "; ";
+      newUA += '; ';
       newUA += values.model;
     }
     return newUA;
@@ -81,19 +80,19 @@ async function getUserAgentUsingClientHints(hints) {
 
   const Initialize = (values) => {
     if (!values.architecture) {
-      values.architecture = "x86";
+      values.architecture = 'x86';
     }
     if (!values.bitness) {
-      values.bitness = "64";
+      values.bitness = '64';
     }
     if (!values.model) {
-      values.model = "";
+      values.model = '';
     }
     if (!values.platform) {
-      values.platform = "Windows";
+      values.platform = 'Windows';
     }
     if (!values.platformVersion) {
-      values.platformVersion = "10.0";
+      values.platformVersion = '10.0';
     }
     if (!values.wow64) {
       values.wow64 = false;
@@ -110,10 +109,10 @@ async function getUserAgentUsingClientHints(hints) {
   let is_chromium = false;
   let chromium_version;
   const is_chrome_ua_pattern = new RegExp(
-    "AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/\\d+.\\d+.\\d+.\\d+ (Mobile )?Safari/537.36$"
+    'AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/\\d+.\\d+.\\d+.\\d+ (Mobile )?Safari/537.36$'
   );
   navigator.userAgentData.brands.forEach((value) => {
-    if (value.brand == "Chromium") {
+    if (value.brand == 'Chromium') {
       // Let's double check the UA string as well, so we don't accidentally
       // capture a headless browser or friendly bot (which should report as
       // HeadlessChrome or something entirely different).
@@ -137,24 +136,24 @@ async function getUserAgentUsingClientHints(hints) {
       };
       values = Object.assign(initialValues, values);
       values = Initialize(values);
-      let newUA = "Mozilla/5.0 (";
-      if (["Chrome OS", "Chromium OS"].includes(values.platform)) {
+      let newUA = 'Mozilla/5.0 (';
+      if (['Chrome OS', 'Chromium OS'].includes(values.platform)) {
         newUA += GetCrosSpecificString(values);
-      } else if (values.platform == "Windows") {
+      } else if (values.platform == 'Windows') {
         newUA += GetWindowsSpecificString(values);
-      } else if (values.platform == "macOS") {
+      } else if (values.platform == 'macOS') {
         newUA += GetMacSpecificString(values);
-      } else if (values.platform == "Android") {
+      } else if (values.platform == 'Android') {
         newUA += GetAndroidSpecificString(values);
       } else {
-        newUA += "X11; Linux x86_64";
+        newUA += 'X11; Linux x86_64';
       }
-      newUA += ") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/";
+      newUA += ') AppleWebKit/537.36 (KHTML, like Gecko) Chrome/';
       newUA += getVersion(values?.fullVersionList, initialValues.version);
       if (navigator.userAgentData.mobile) {
-        newUA += " Mobile";
+        newUA += ' Mobile';
       }
-      newUA += " Safari/537.36";
+      newUA += ' Safari/537.36';
       resolve(newUA);
     });
   });
@@ -164,7 +163,7 @@ function getVersion(fullVersionList, majorVersion) {
   // If we don't get a fullVersionList, or it's somehow undefined, return
   // the reduced version number.
   return (
-    fullVersionList?.find((item) => item.brand == "Google Chrome")?.version ||
+    fullVersionList?.find((item) => item.brand == 'Google Chrome')?.version ||
     `${majorVersion}.0.0.0`
   );
 }
@@ -172,26 +171,30 @@ function getVersion(fullVersionList, majorVersion) {
 function getWindowsPlatformVersion(platformVersion) {
   // https://wicg.github.io/ua-client-hints/#get-the-legacy-windows-version-number
   const versionMap = new Map([
-    ["0.3.0", "6.3"], // Windows 8.1
-    ["0.2.0", "6.2"], // Windows 8
-    ["0.1.0", "6.1"], // Windows 7
+    ['0.3.0', '6.3'], // Windows 8.1
+    ['0.2.0', '6.2'], // Windows 8
+    ['0.1.0', '6.1'], // Windows 7
   ]);
 
   if (versionMap.has(platformVersion)) {
     return versionMap.get(platformVersion);
   }
 
-  // Check for Windows 11 and above using high entropy values 
-  if (typeof navigator !== 'undefined' && navigator.userAgentData && navigator.userAgentData.platform === "Windows") { 
-    const majorPlatformVersion = parseInt(platformVersion.split('.')[0]); 
-    if (majorPlatformVersion >= 13) { 
-      // Windows 11 or later 
-      return "11.0"; 
-    } 
+  // Check for Windows 11 and above using high entropy values
+  if (
+    typeof navigator !== 'undefined' &&
+    navigator.userAgentData &&
+    navigator.userAgentData.platform === 'Windows'
+  ) {
+    const majorPlatformVersion = parseInt(platformVersion.split('.')[0]);
+    if (majorPlatformVersion >= 13) {
+      // Windows 11 or later
+      return '13.0';
+    }
   }
 
   // Windows 10 and above send "Windows NT 10.0"
-  return "10.0";
+  return '10.0';
 }
 
 /**
@@ -204,7 +207,7 @@ async function overrideUserAgentUsingClientHints(hints) {
     getUserAgentUsingClientHints(hints).then((newUA) => {
       if (newUA) {
         // Got a new UA value. Now override `navigator.userAgent`.
-        Object.defineProperty(navigator, "userAgent", {
+        Object.defineProperty(navigator, 'userAgent', {
           value: newUA,
           writable: false,
           configurable: true,
